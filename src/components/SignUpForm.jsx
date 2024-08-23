@@ -4,9 +4,21 @@ export default function SignUpForm({ setToken }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+    const [validationError, setValidationError] = useState("");
+
+    function validateForm() {
+        if (username.length < 8) {
+            setValidationError("Username must be at least 8 characters long.");
+            return false;
+        }
+        return true;
+    }
 
     async function handleSubmit(event) {
         event.preventDefault();
+
+        if (!validateForm()) return;
+
         try {
             const response = await fetch("https://fsa-jwt-practice.herokuapp.com/signup", {
                 method: "POST",
@@ -21,6 +33,7 @@ export default function SignUpForm({ setToken }) {
             if (response.ok) {
                 console.log(result);
                 setToken(result.token);
+                setValidationError("");
             } else {
                 setError(result.error);
             }
@@ -34,6 +47,7 @@ export default function SignUpForm({ setToken }) {
         <>
             <h2>Sign Up!</h2>
             {error && <p>{error}</p>}
+            {validationError && <p className='invalid-input'>{validationError}</p>}
             <form onSubmit={handleSubmit}>
                 <label>
                     Username: <input value={username} onChange={(e) => setUsername(e.target.value)}/>
@@ -41,7 +55,7 @@ export default function SignUpForm({ setToken }) {
                 <label>
                     Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/>
                 </label>
-                <button>Submit</button>
+                <button className='button'>Submit</button>
             </form>
         </>
     ); 
